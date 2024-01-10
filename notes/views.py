@@ -45,37 +45,51 @@ def get_routes(request):
     return Response(routes)
 
 
+from django.core.exceptions import ObjectDoesNotExist
+
 @api_view(['GET'])
 def get_notes(request):
     notes = Note.objects.all()
-    serializer = NoteSerializer(notes, many = True)
+    serializer = NoteSerializer(notes, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_note(request, pk):
-    notes = Note.objects.get(id=pk)
-    serializer = NoteSerializer(notes, many = False)
-    return Response(serializer.data)
+    try:
+        note = Note.objects.get(id=pk)
+        serializer = NoteSerializer(note, many=False)
+        return Response({'message': 'Note fetched successfully.', 'note': serializer.data}, status=200)
+    except Note.DoesNotExist:
+        return Response({'message': 'Note not found.'}, status=404)
 
 @api_view(['POST'])
 def createNote(request):
     data = request.data
-    note = Note.objects.create(body=data['body'])
+    note = Note.objects.create(body=data.get('body', ''))
     serializer = NoteSerializer(note)
-    return Response(serializer.data)
+    return Response({'message': 'Note created successfully.', 'note': serializer.data}, status=201)
 
 @api_view(['PUT'])
 def updateNote(request, pk):
+    try:
+        note = Note.objects.get(id=pk)
+    except Note.DoesNotExist:
+        return Response({'message': 'Note not found.'}, status=404)
+
     data = request.data
-    note = Note.objects.get(id=pk)
     serializer = NoteSerializer(instance=note, data=data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=400)
+        return Response({'message': 'Note updated successfully.', 'note': serializer.data}, status=200)
+    return Response({'message': 'Invalid data.', 'errors': serializer.errors}, status=400)
 
 @api_view(['DELETE'])
 def deleteNote(request, pk):
-    note = Note.objects.get(id=pk)
-    note.delete()
-    return Response('Note was deleted!')
+    try:
+        note = Note.objects.get(id=pk)
+        note.delete()
+        return Response({'message': 'Note deleted successfully.'}, status=204)
+    except Note.DoesNotExist:
+        return Response({'message': 'Note not found.'}, status=404)
+
+
