@@ -25,7 +25,7 @@ This project is a simple Notes App implemented using Django REST Framework. It p
 3. **Run Migrations:**
 
     ```bash
-   python manage.py makemigrations                                           ─╯
+   python manage.py makemigrations
    python manage.py migrate
     ```
 
