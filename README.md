@@ -19,7 +19,7 @@ This project is a simple Notes App implemented using Django REST Framework. It p
 2. **Install Dependencies:**
 
     ```bash
-pip install django djangorestframework django-cors-headers
+     pip install django djangorestframework django-cors-headers
     ```
 
 3. **Run Migrations:**
